@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+    
+    <head>
+         <meta http-equiv="Content-Type" content="text/html; charset=utf8">
+             <meta http-equiv="pragma" content="no-cache">
+                 <meta name="viewport" content="width=device-width, initial-scale=1.5, maximum-scale=1.5, minimum-scale=1.5, user-scalable=no">
+                     <title>Bridge Demo</title>
+                     <style></style>
+    </head>
+    
+    <body>
+        <script type="text/javascript">
+            
+            function loadURL(url) {
+                var iFrame;
+                iFrame = document.createElement("iframe");
+                iFrame.setAttribute("src", url);
+                iFrame.setAttribute("style", "display:none;");
+                iFrame.setAttribute("height", "0px");
+                iFrame.setAttribute("width", "0px");
+                iFrame.setAttribute("frameborder", "0");
+                document.body.appendChild(iFrame);
+                
+                // 发起请求后这个iFrame就没用了，所以把它从dom上移除掉
+                iFrame.parentNode.removeChild(iFrame);
+                iFrame = null;
+            }
+        
+            function testWebkit() {
+                var browser = navigator.userAgent.toLowerCase();
+                if (browser.indexOf("demowkwebview")>0) {
+                    window.webkit.messageHandlers.testClick.postMessage({"func":"setTitle",param:{"title":"新的title"}});
+                } else {
+                    alert("不支持MessageHandler操作");
+                }
+            }
+        
+            function testiframe(url) {
+                loadURL("fusion://setTitle?title=hello");
+            }
+        
+        </script>
+        
+        <br>
+        <button type="button" onclick="testWebkit()">webkit调用</button>
+        <button type="button" onclick="testiframe()">iFrame调用</button>
+        <br>
+        
+    </body>
+    
+</html>
