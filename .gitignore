@@ -5,7 +5,8 @@
 ## Build generated
 build/
 DerivedData/
-.DS_Store/
+WebViewDemo0821.xcworkspace/xcuserdata
+.DS_Store
 
 ## Various settings
 *.pbxuser
