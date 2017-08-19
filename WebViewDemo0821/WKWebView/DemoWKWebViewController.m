@@ -59,15 +59,26 @@
 {
     if (!_webView) {
         // Configuration
-        WKScriptMessageHandler *messageHandler = [[WKScriptMessageHandler alloc] initWithHelper:self.helper];
-        WKWebViewConfiguration *wkWebConfig = [[WKWebViewConfiguration alloc] init];
+        WKWebViewConfiguration *webConfigutation = [[WKWebViewConfiguration alloc] init];
+        
+        // 进程池，不设置使用默认的pool
+        WKProcessPool *processPool = [[WKProcessPool alloc] init];
+        webConfigutation.processPool = processPool;
+        
+        // wkwebview偏好设置
+        WKPreferences *preference = [[WKPreferences alloc]init];
+//        preference.javaScriptEnabled = NO;
+        webConfigutation.preferences = preference;
+        
         // 注册testClick事件
-        [wkWebConfig.userContentController addScriptMessageHandler:messageHandler name:@"testClick"];
+        WKScriptMessageHandler *messageHandler = [[WKScriptMessageHandler alloc] initWithHelper:self.helper];
+        [webConfigutation.userContentController addScriptMessageHandler:messageHandler name:@"testClick"];
         
         // WebView
         CGRect webviewRect = CGRectMake(0, self.navigationController.navigationBar.frame.origin.y+self.navigationController.navigationBar.frame.size.height, self.view.bounds.size.width, self.view.bounds.size.height);
-        WKWebView *webView = [[WKWebView alloc] initWithFrame:webviewRect configuration:wkWebConfig];
+        WKWebView *webView = [[WKWebView alloc] initWithFrame:webviewRect configuration:webConfigutation];
         webView.navigationDelegate = self;
+//        webView.UIDelegate = self;
         
         _webView = webView;
     }
@@ -89,14 +100,14 @@
     self.navigationController.navigationBar.topItem.backBarButtonItem = naviBack;
     
     // User Agent
-    [self setUserAgent];
+//    [self setUserAgent];
     
     // WebView
     [self.view addSubview:self.webView];
     
     // Load Request
-    [self loadLocalFile];
-//    [self loadRemoteURL];
+//    [self loadLocalFile];
+    [self loadRemoteURL];
 }
 
 - (void)loadLocalFile
@@ -109,11 +120,6 @@
         NSURL *fileURL = [NSURL fileURLWithPath:path];
         [self.webView loadFileURL:fileURL allowingReadAccessToURL:fileURL];
     } else {
-        // iOS8. Things can be workaround-ed
-        //   Brave people can do just this
-        //   fileURL = try! pathForBuggyWKWebView8(fileURL)
-        //   webView.loadRequest(NSURLRequest(URL: fileURL))
-        
         NSURL *fileURL = [self fileURLForBuggyWKWebView8:[NSURL fileURLWithPath:path]];
         NSURLRequest *request = [NSURLRequest requestWithURL:fileURL];
         [self.webView loadRequest:request];
@@ -122,7 +128,7 @@
 
 - (void)loadRemoteURL
 {
-    NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:@"https://www.baidu.com"]];
+    NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:@"https://www.baidu.com/"]];
     [self.webView loadRequest:request];
 }
 
@@ -175,13 +181,54 @@
 
 - (void)webView:(WKWebView *)webView didFinishNavigation:(null_unspecified WKNavigation *)navigation
 {
-    __weak typeof(self) weakSelf = self;
-    [webView evaluateJavaScript:@"document.title" completionHandler:^(id _Nullable item, NSError * _Nullable error) {
-        if (item && [item isKindOfClass:[NSString class]]) {
-            weakSelf.title = item;
-        }
-    }];
+    // 执行 document.title 获取 title 后赋值
+//    __weak typeof(self) weakSelf = self;
+//    [webView evaluateJavaScript:@"document.title" completionHandler:^(id _Nullable item, NSError * _Nullable error) {
+//        if (item && [item isKindOfClass:[NSString class]]) {
+//            weakSelf.title = item;
+//        }
+//    }];
+    
+    // 直接读取 webview 的 title 属性
+    self.title = webView.title;
 }
+
+-(void)webViewWebContentProcessDidTerminate:(WKWebView *)webView
+{
+    NSLog(@"%@",NSStringFromSelector(_cmd));
+}
+
+#pragma mark - WKUIDelegate
+//- (nullable WKWebView *)webView:(WKWebView *)webView createWebViewWithConfiguration:(WKWebViewConfiguration *)configuration forNavigationAction:(WKNavigationAction *)navigationAction windowFeatures:(WKWindowFeatures *)windowFeatures
+//{
+//    NSLog(@"%@",NSStringFromSelector(_cmd));
+//    WKWebView *newWekView = [[WKWebView alloc] initWithFrame:webView.frame configuration:configuration];
+//    return newWekView;
+//}
+//
+//- (void)webViewDidClose:(WKWebView *)webView
+//{
+//    NSLog(@"%@",NSStringFromSelector(_cmd));
+//}
+//
+//- (void)webView:(WKWebView *)webView runJavaScriptAlertPanelWithMessage:(NSString *)message initiatedByFrame:(WKFrameInfo *)frame completionHandler:(void (^)(void))completionHandler
+//{
+//    completionHandler();
+//    NSLog(@"%@",NSStringFromSelector(_cmd));
+//}
+//
+//- (void)webView:(WKWebView *)webView runJavaScriptConfirmPanelWithMessage:(NSString *)message initiatedByFrame:(WKFrameInfo *)frame completionHandler:(void (^)(BOOL result))completionHandler
+//{
+//    completionHandler(YES);
+//    NSLog(@"%@",NSStringFromSelector(_cmd));
+//}
+//
+//- (void)webView:(WKWebView *)webView runJavaScriptTextInputPanelWithPrompt:(NSString *)prompt defaultText:(nullable NSString *)defaultText initiatedByFrame:(WKFrameInfo *)frame completionHandler:(void (^)(NSString * _Nullable result))completionHandler
+//{
+//    completionHandler(@"123");
+//    NSLog(@"%@",NSStringFromSelector(_cmd));
+//}
+
 
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];

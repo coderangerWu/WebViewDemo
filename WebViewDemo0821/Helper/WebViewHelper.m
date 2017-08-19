@@ -7,6 +7,7 @@
 //
 
 #import "WebViewHelper.h"
+#import <UIKit/UIKit.h>
 
 @interface WebViewHelper ()
 
@@ -20,6 +21,11 @@
     
     NSString *funcName = url.host;
     NSString *param = url.query;
+    
+    NSString *message = [NSString stringWithFormat:@"function: %@ is called! param: %@",funcName,param];
+    UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Message" message:message delegate:nil cancelButtonTitle:@"确定" otherButtonTitles:nil, nil];
+    [alert show];
+    
     NSLog(@"function: %@ is called! param: %@",funcName,param);
 }
 
@@ -31,6 +37,10 @@
     
     NSString *funcName = data[@"func"];
     NSDictionary *param = data[@"param"];
+    
+    NSString *msg = [NSString stringWithFormat:@"function: %@ is called! param: %@",funcName,param];
+    UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Message" message:msg delegate:nil cancelButtonTitle:@"确定" otherButtonTitles:nil, nil];
+    [alert show];
     
     NSLog(@"function: %@ is called! param: %@",funcName,param);
 }

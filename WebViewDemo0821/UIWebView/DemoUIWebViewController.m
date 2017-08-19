@@ -88,12 +88,12 @@
     // Progress
     [self.webView addSubview:self.progressView];
     
-    [self loadLocalFile];
-//    [self loadRemoteURL];
+//    [self loadLocalFile];
+    [self loadRemoteURL];
     
     [self.webView bringSubviewToFront:self.progressView];
     
-    [self setUserAgent];
+//    [self setUserAgent];
 }
 
 - (void)loadLocalFile
@@ -108,20 +108,20 @@
 
 - (void)loadRemoteURL
 {
-    NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:@"https://www.baidu.com"]];
+    NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:@"https://www.baidu.com/"]];
     [self.webView loadRequest:request];
 }
 
 - (void)setUserAgent
 {
-    if (![[NSUserDefaults standardUserDefaults] stringForKey:@"WKUserAgent" ]) {
+    if (![[NSUserDefaults standardUserDefaults] stringForKey:@"UIUserAgent" ]) {
         
         UIWebView *awebView = [[UIWebView alloc] initWithFrame:CGRectZero];
         NSString *oldAgent = [awebView stringByEvaluatingJavaScriptFromString:@"navigator.userAgent"];
-        [[NSUserDefaults standardUserDefaults] setObject:oldAgent forKey:@"WKUserAgent"];
+        [[NSUserDefaults standardUserDefaults] setObject:oldAgent forKey:@"UIUserAgent"];
     }
     
-    NSString *oldAgent = [[NSUserDefaults standardUserDefaults] stringForKey:@"WKUserAgent"];
+    NSString *oldAgent = [[NSUserDefaults standardUserDefaults] stringForKey:@"UIUserAgent"];
     NSString *newAgent = [NSString stringWithFormat:@"%@ %@", oldAgent, @"DemoUIWebView"];
     [[NSUserDefaults standardUserDefaults] registerDefaults:@{@"UserAgent" : newAgent}];
 }
