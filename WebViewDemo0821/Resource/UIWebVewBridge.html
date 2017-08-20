@@ -27,15 +27,6 @@
                 iFrame = null;
             }
         
-            function testWebkit() {
-                var browser = navigator.userAgent.toLowerCase();
-                if (browser.indexOf("demowkwebview")>0) {
-                    window.webkit.messageHandlers.testClick.postMessage({"func":"setTitle",param:{"title":"新的title"}});
-                } else {
-                    alert("不支持MessageHandler操作");
-                }
-            }
-        
             function testiframe(url) {
                 loadURL("fusion://setTitle?title=hello");
             }
@@ -44,8 +35,10 @@
         
         <br>
         <button type="button" onclick="testWebkit()">webkit调用</button>
-        <button type="button" onclick="testiframe()">iFrame调用</button>
         <br>
+        
+        <div>Click me here: <a href="http://www.baidu.com">Jump to Baidu</a>
+        </div>
         
     </body>
     

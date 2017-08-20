@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+    
+    <head>
+         <meta http-equiv="Content-Type" content="text/html; charset=utf8">
+             <meta http-equiv="pragma" content="no-cache">
+                 <meta name="viewport" content="width=device-width, initial-scale=1.5, maximum-scale=1.5, minimum-scale=1.5, user-scalable=no">
+                     <title>Bridge Demo</title>
+                     <style></style>
+    </head>
+    
+    <body>
+        <script type="text/javascript">
+            
+            function loadURL(url) {
+                var iFrame;
+                iFrame = document.createElement("iframe");
+                iFrame.setAttribute("src", url);
+                iFrame.setAttribute("style", "display:none;");
+                iFrame.setAttribute("height", "0px");
+                iFrame.setAttribute("width", "0px");
+                iFrame.setAttribute("frameborder", "0");
+                document.body.appendChild(iFrame);
+                
+                // 发起请求后这个iFrame就没用了，所以把它从dom上移除掉
+                iFrame.parentNode.removeChild(iFrame);
+                iFrame = null;
+            }
+        
+            function testWebkit() {
+                window.webkit.messageHandlers.testClick.postMessage({"func":"setTitle",param:{"title":"新的title"}});
+            }
+        
+            function testiframe(url) {
+                loadURL("fusion://setTitle?title=hello");
+            }
+        
+            function callJsAlert() {
+                alert('Objective-C call js to show alert');
+                
+                window.webkit.messageHandlers.AppModel.postMessage({ body: 'call js alert in js' });
+            }
+        
+            function callJsConfirm() {
+                if (confirm('confirm', 'Objective-C call js to show confirm')) {
+                    document.getElementById('jsParamFuncSpan').innerHTML = 'true';
+                } else {
+                    document.getElementById('jsParamFuncSpan').innerHTML = 'false';
+                }
+                
+                // AppModel是我们所注入的对象
+                window.webkit.messageHandlers.AppModel.postMessage({ body: 'call js confirm in js' });
+            }
+        
+            function callJsInput() {
+                var response = prompt('Hello', 'Please input your name:');
+                document.getElementById('jsParamFuncSpan').innerHTML = response;
+                
+                // AppModel是我们所注入的对象
+                window.webkit.messageHandlers.AppModel.postMessage({body: response});
+            }
+        </script>
+        
+        <div id="iOSDiv">
+            <span id="jsParamFuncSpan" style="color: red; font-size: 50px;"></span>
+        </div>
+
+        <div>
+        <br>
+        <button type="button" onclick="testWebkit()">webkit调用</button>
+        <button type="button" onclick="testiframe()">iFrame调用</button>
+        </div>
+        <br/>
+        
+        <div>
+            <input type="button" value="call alert()" onclick="callJsAlert()">
+        </div>
+        <br/>
+        
+        <div>
+            <input type="button" value="Call confirm()" onclick="callJsConfirm()">
+        </div>
+        <br/>
+        
+        <div>
+            <input type="button" value="Call prompt()" onclick="callJsInput()">
+        </div>
+        <br/>
+        
+        <div>Click me here: <a href="http://www.baidu.com">Jump to Baidu</a>
+        </div>
+
+    </body>
+    
+</html>

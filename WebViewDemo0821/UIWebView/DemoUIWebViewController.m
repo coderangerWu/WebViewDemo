@@ -98,7 +98,7 @@
 
 - (void)loadLocalFile
 {
-    NSString *path = [[NSBundle mainBundle] pathForResource:@"bridge" ofType:@"html"];
+    NSString *path = [[NSBundle mainBundle] pathForResource:@"UIWebVewBridge" ofType:@"html"];
     if (!path) return;
     
     NSURL *fileURL = [NSURL fileURLWithPath:path];
@@ -108,7 +108,7 @@
 
 - (void)loadRemoteURL
 {
-    NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:@"https://www.baidu.com/"]];
+    NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:@"https://webkit.org/perf/sunspider/sunspider.html"]];
     [self.webView loadRequest:request];
 }
 

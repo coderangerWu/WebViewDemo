@@ -8,11 +8,13 @@
 
 /* Begin PBXBuildFile section */
 		443E2D4F1F45715B00A04829 /* WebViewHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 443E2D4E1F45715B00A04829 /* WebViewHelper.m */; };
-		443E2D521F457FB300A04829 /* bridge.html in Resources */ = {isa = PBXBuildFile; fileRef = 443E2D511F457FB300A04829 /* bridge.html */; };
 		443E2D561F4587C800A04829 /* Utility.m in Sources */ = {isa = PBXBuildFile; fileRef = 443E2D551F4587C800A04829 /* Utility.m */; };
 		443E2D5A1F45A77A00A04829 /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 443E2D571F45A77A00A04829 /* Default-568h@2x.png */; };
 		443E2D5B1F45A77A00A04829 /* Default.png in Resources */ = {isa = PBXBuildFile; fileRef = 443E2D581F45A77A00A04829 /* Default.png */; };
 		443E2D5C1F45A77A00A04829 /* Default@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 443E2D591F45A77A00A04829 /* Default@2x.png */; };
+		4477BC511F492CDE00974CBE /* UIWebVewBridge.html in Resources */ = {isa = PBXBuildFile; fileRef = 4477BC4F1F492CDE00974CBE /* UIWebVewBridge.html */; };
+		4477BC521F492CDE00974CBE /* WKWebVewBridge.html in Resources */ = {isa = PBXBuildFile; fileRef = 4477BC501F492CDE00974CBE /* WKWebVewBridge.html */; };
+		4477BC541F49384800974CBE /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4477BC531F49384800974CBE /* WebKit.framework */; };
 		44D138771F443C8800CF68BF /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 44D138761F443C8800CF68BF /* main.m */; };
 		44D1387A1F443C8800CF68BF /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 44D138791F443C8800CF68BF /* AppDelegate.m */; };
 		44D1387D1F443C8800CF68BF /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 44D1387C1F443C8800CF68BF /* ViewController.m */; };
@@ -28,12 +30,14 @@
 		318E6D176D862E40B9DD7A6D /* Pods-WebViewDemo0821.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WebViewDemo0821.debug.xcconfig"; path = "Pods/Target Support Files/Pods-WebViewDemo0821/Pods-WebViewDemo0821.debug.xcconfig"; sourceTree = "<group>"; };
 		443E2D4D1F45715B00A04829 /* WebViewHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WebViewHelper.h; sourceTree = "<group>"; };
 		443E2D4E1F45715B00A04829 /* WebViewHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WebViewHelper.m; sourceTree = "<group>"; };
-		443E2D511F457FB300A04829 /* bridge.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = bridge.html; sourceTree = "<group>"; };
 		443E2D541F4587C800A04829 /* Utility.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Utility.h; sourceTree = "<group>"; };
 		443E2D551F4587C800A04829 /* Utility.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Utility.m; sourceTree = "<group>"; };
 		443E2D571F45A77A00A04829 /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Default-568h@2x.png"; path = "../../Desktop/Default-568h@2x.png"; sourceTree = "<group>"; };
 		443E2D581F45A77A00A04829 /* Default.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Default.png; path = ../../Desktop/Default.png; sourceTree = "<group>"; };
 		443E2D591F45A77A00A04829 /* Default@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Default@2x.png"; path = "../../Desktop/Default@2x.png"; sourceTree = "<group>"; };
+		4477BC4F1F492CDE00974CBE /* UIWebVewBridge.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = UIWebVewBridge.html; sourceTree = "<group>"; };
+		4477BC501F492CDE00974CBE /* WKWebVewBridge.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = WKWebVewBridge.html; sourceTree = "<group>"; };
+		4477BC531F49384800974CBE /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
 		44D138721F443C8800CF68BF /* WebViewDemo0821.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WebViewDemo0821.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		44D138761F443C8800CF68BF /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		44D138781F443C8800CF68BF /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -57,6 +61,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4477BC541F49384800974CBE /* WebKit.framework in Frameworks */,
 				9DE828CC61DA08DCD6702275 /* libPods-WebViewDemo0821.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -76,7 +81,8 @@
 		443E2D501F457FB300A04829 /* Resource */ = {
 			isa = PBXGroup;
 			children = (
-				443E2D511F457FB300A04829 /* bridge.html */,
+				4477BC4F1F492CDE00974CBE /* UIWebVewBridge.html */,
+				4477BC501F492CDE00974CBE /* WKWebVewBridge.html */,
 			);
 			path = Resource;
 			sourceTree = "<group>";
@@ -170,6 +176,7 @@
 		9258C0E30045CF8BB66F450B /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				4477BC531F49384800974CBE /* WebKit.framework */,
 				859147436B14FBA638D5169A /* libPods-WebViewDemo0821.a */,
 			);
 			name = Frameworks;
@@ -238,8 +245,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				44D138851F443C8800CF68BF /* LaunchScreen.storyboard in Resources */,
+				4477BC511F492CDE00974CBE /* UIWebVewBridge.html in Resources */,
 				443E2D5B1F45A77A00A04829 /* Default.png in Resources */,
-				443E2D521F457FB300A04829 /* bridge.html in Resources */,
+				4477BC521F492CDE00974CBE /* WKWebVewBridge.html in Resources */,
 				44D138821F443C8800CF68BF /* Assets.xcassets in Resources */,
 				443E2D5A1F45A77A00A04829 /* Default-568h@2x.png in Resources */,
 				443E2D5C1F45A77A00A04829 /* Default@2x.png in Resources */,

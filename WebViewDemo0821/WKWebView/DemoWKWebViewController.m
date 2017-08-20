@@ -7,10 +7,11 @@
 //
 
 #import "DemoWKWebViewController.h"
-#import <WebKit/WebKit.h>
 #import "WebViewHelper.h"
 
-@interface WKScriptMessageHandler : NSObject<WKScriptMessageHandler>
+#import <WebKit/WebKit.h>
+
+@interface WKScriptMessageHandler : NSObject<WKScriptMessageHandler,WKUIDelegate>
 @property (nonatomic, strong) WebViewHelper *helper;
 @end
 @implementation WKScriptMessageHandler
@@ -43,6 +44,8 @@
 
 - (void)dealloc
 {
+    [self.webView removeObserver:self forKeyPath:@"title"];
+    
     self.webView.navigationDelegate = nil;
 }
 
@@ -78,7 +81,7 @@
         CGRect webviewRect = CGRectMake(0, self.navigationController.navigationBar.frame.origin.y+self.navigationController.navigationBar.frame.size.height, self.view.bounds.size.width, self.view.bounds.size.height);
         WKWebView *webView = [[WKWebView alloc] initWithFrame:webviewRect configuration:webConfigutation];
         webView.navigationDelegate = self;
-//        webView.UIDelegate = self;
+        webView.UIDelegate = self;
         
         _webView = webView;
     }
@@ -103,16 +106,17 @@
 //    [self setUserAgent];
     
     // WebView
+    [self.webView addObserver:self forKeyPath:@"title" options:NSKeyValueObservingOptionNew context:nil];
     [self.view addSubview:self.webView];
     
     // Load Request
-//    [self loadLocalFile];
-    [self loadRemoteURL];
+    [self loadLocalFile];
+//    [self loadRemoteURL];
 }
 
 - (void)loadLocalFile
 {
-    NSString *path = [[NSBundle mainBundle] pathForResource:@"bridge" ofType:@"html"];
+    NSString *path = [[NSBundle mainBundle] pathForResource:@"WKWebVewBridge" ofType:@"html"];
     if (!path) return;
     
     if ([[UIDevice currentDevice].systemVersion floatValue] >= 9.0) {
@@ -128,7 +132,7 @@
 
 - (void)loadRemoteURL
 {
-    NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:@"https://www.baidu.com/"]];
+    NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:@"https://webkit.org/perf/sunspider/sunspider.html"]];
     [self.webView loadRequest:request];
 }
 
@@ -179,6 +183,11 @@
     decisionHandler(WKNavigationActionPolicyAllow);
 }
 
+- (void)webView:(WKWebView *)webView decidePolicyForNavigationResponse:(WKNavigationResponse *)navigationResponse decisionHandler:(void (^)(WKNavigationResponsePolicy))decisionHandler
+{
+    decisionHandler(WKNavigationResponsePolicyAllow);
+}
+
 - (void)webView:(WKWebView *)webView didFinishNavigation:(null_unspecified WKNavigation *)navigation
 {
     // 执行 document.title 获取 title 后赋值
@@ -199,35 +208,48 @@
 }
 
 #pragma mark - WKUIDelegate
-//- (nullable WKWebView *)webView:(WKWebView *)webView createWebViewWithConfiguration:(WKWebViewConfiguration *)configuration forNavigationAction:(WKNavigationAction *)navigationAction windowFeatures:(WKWindowFeatures *)windowFeatures
-//{
-//    NSLog(@"%@",NSStringFromSelector(_cmd));
-//    WKWebView *newWekView = [[WKWebView alloc] initWithFrame:webView.frame configuration:configuration];
-//    return newWekView;
-//}
-//
-//- (void)webViewDidClose:(WKWebView *)webView
-//{
-//    NSLog(@"%@",NSStringFromSelector(_cmd));
-//}
-//
-//- (void)webView:(WKWebView *)webView runJavaScriptAlertPanelWithMessage:(NSString *)message initiatedByFrame:(WKFrameInfo *)frame completionHandler:(void (^)(void))completionHandler
-//{
-//    completionHandler();
-//    NSLog(@"%@",NSStringFromSelector(_cmd));
-//}
-//
-//- (void)webView:(WKWebView *)webView runJavaScriptConfirmPanelWithMessage:(NSString *)message initiatedByFrame:(WKFrameInfo *)frame completionHandler:(void (^)(BOOL result))completionHandler
-//{
-//    completionHandler(YES);
-//    NSLog(@"%@",NSStringFromSelector(_cmd));
-//}
-//
-//- (void)webView:(WKWebView *)webView runJavaScriptTextInputPanelWithPrompt:(NSString *)prompt defaultText:(nullable NSString *)defaultText initiatedByFrame:(WKFrameInfo *)frame completionHandler:(void (^)(NSString * _Nullable result))completionHandler
-//{
-//    completionHandler(@"123");
-//    NSLog(@"%@",NSStringFromSelector(_cmd));
-//}
+- (nullable WKWebView *)webView:(WKWebView *)webView createWebViewWithConfiguration:(WKWebViewConfiguration *)configuration forNavigationAction:(WKNavigationAction *)navigationAction windowFeatures:(WKWindowFeatures *)windowFeatures
+{
+    NSLog(@"%@",NSStringFromSelector(_cmd));
+    WKWebView *newWekView = [[WKWebView alloc] initWithFrame:webView.frame configuration:configuration];
+    return newWekView;
+}
+
+- (void)webViewDidClose:(WKWebView *)webView
+{
+    NSLog(@"%@",NSStringFromSelector(_cmd));
+}
+
+- (void)webView:(WKWebView *)webView runJavaScriptAlertPanelWithMessage:(NSString *)message initiatedByFrame:(WKFrameInfo *)frame completionHandler:(void (^)(void))completionHandler
+{
+    UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Alert" message:message delegate:nil cancelButtonTitle:@"确定" otherButtonTitles:nil, nil];
+    [alert show];
+    
+    completionHandler();
+    NSLog(@"%@",NSStringFromSelector(_cmd));
+}
+
+- (void)webView:(WKWebView *)webView runJavaScriptConfirmPanelWithMessage:(NSString *)message initiatedByFrame:(WKFrameInfo *)frame completionHandler:(void (^)(BOOL result))completionHandler
+{
+    completionHandler(YES);
+    NSLog(@"%@",NSStringFromSelector(_cmd));
+}
+
+- (void)webView:(WKWebView *)webView runJavaScriptTextInputPanelWithPrompt:(NSString *)prompt defaultText:(nullable NSString *)defaultText initiatedByFrame:(WKFrameInfo *)frame completionHandler:(void (^)(NSString * _Nullable result))completionHandler
+{
+    completionHandler(@"123");
+    NSLog(@"%@",NSStringFromSelector(_cmd));
+}
+
+#pragma mark - KVO
+- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSKeyValueChangeKey,id> *)change context:(void *)context
+{
+    if ([keyPath isEqualToString:@"title"]) {
+        
+    } else if ([keyPath isEqualToString:@""]) {
+        
+    }
+}
 
 
 - (void)didReceiveMemoryWarning {
