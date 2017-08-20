@@ -108,7 +108,9 @@
 
 - (void)loadRemoteURL
 {
-    NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:@"https://webkit.org/perf/sunspider/sunspider.html"]];
+    NSString *url = @"https://webkit.org/perf/sunspider/sunspider.html";
+    url = @"https://webkit.org/blog/3395/speedometer-benchmark-for-web-app-responsiveness/";
+    NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:url]];
     [self.webView loadRequest:request];
 }
 

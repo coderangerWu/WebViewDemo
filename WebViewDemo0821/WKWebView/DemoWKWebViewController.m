@@ -37,6 +37,7 @@
 
 @interface DemoWKWebViewController ()<WKNavigationDelegate>
 @property (nonatomic, strong) WKWebView *webView;
+@property (nonatomic, strong) UIProgressView *progressView;
 @property (nonatomic, strong) WebViewHelper *helper;
 @end
 
@@ -45,6 +46,7 @@
 - (void)dealloc
 {
     [self.webView removeObserver:self forKeyPath:@"title"];
+    [self.webView removeObserver:self forKeyPath:@"estimatedProgress"];
     
     self.webView.navigationDelegate = nil;
 }
@@ -80,12 +82,23 @@
         // WebView
         CGRect webviewRect = CGRectMake(0, self.navigationController.navigationBar.frame.origin.y+self.navigationController.navigationBar.frame.size.height, self.view.bounds.size.width, self.view.bounds.size.height);
         WKWebView *webView = [[WKWebView alloc] initWithFrame:webviewRect configuration:webConfigutation];
-        webView.navigationDelegate = self;
-        webView.UIDelegate = self;
+        webView.navigationDelegate = (id)self;
+        webView.UIDelegate = (id)self;
         
         _webView = webView;
     }
     return _webView;
+}
+
+- (UIProgressView *)progressView
+{
+    if (!_progressView) {
+        UIProgressView *progressView = [[UIProgressView alloc] initWithFrame:CGRectMake(0, 0, self.webView.frame.size.width, 2.0)];
+        progressView.backgroundColor = [UIColor greenColor];
+        progressView.progress = 0.0;
+        _progressView = progressView;
+    }
+    return _progressView;
 }
 
 #pragma mark -
@@ -107,7 +120,12 @@
     
     // WebView
     [self.webView addObserver:self forKeyPath:@"title" options:NSKeyValueObservingOptionNew context:nil];
+    [self.webView addObserver:self forKeyPath:@"estimatedProgress" options:NSKeyValueObservingOptionNew context:nil];
     [self.view addSubview:self.webView];
+    
+    // Progress View
+    [self.webView addSubview:self.progressView];
+    [self.webView bringSubviewToFront:self.progressView];
     
     // Load Request
     [self loadLocalFile];
@@ -132,7 +150,10 @@
 
 - (void)loadRemoteURL
 {
-    NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:@"https://webkit.org/perf/sunspider/sunspider.html"]];
+    NSString *url = @"https://webkit.org/perf/sunspider/sunspider.html";
+    url = @"https://webkit.org/blog/3395/speedometer-benchmark-for-web-app-responsiveness/";
+    url = @"https://www.baidu.com/";
+    NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:url]];
     [self.webView loadRequest:request];
 }
 
@@ -173,6 +194,8 @@
 #pragma mark - WKNavigationDelegate
 - (void)webView:(WKWebView *)webView decidePolicyForNavigationAction:(WKNavigationAction *)navigationAction decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler
 {
+    NSLog(@"%@",NSStringFromSelector(_cmd));
+    
     NSURL *url = navigationAction.request.URL;
     
     if ([url.scheme isEqualToString:@"fusion"]) {
@@ -180,16 +203,46 @@
         [self.helper handleBridgeUrl:url];
     }
     
+    self.progressView.hidden = NO;
+    
     decisionHandler(WKNavigationActionPolicyAllow);
 }
 
 - (void)webView:(WKWebView *)webView decidePolicyForNavigationResponse:(WKNavigationResponse *)navigationResponse decisionHandler:(void (^)(WKNavigationResponsePolicy))decisionHandler
 {
+    NSLog(@"%@",NSStringFromSelector(_cmd));
+    
     decisionHandler(WKNavigationResponsePolicyAllow);
+}
+
+- (void)webView:(WKWebView *)webView didStartProvisionalNavigation:(null_unspecified WKNavigation *)navigation
+{
+    NSLog(@"%@",NSStringFromSelector(_cmd));
+}
+
+- (void)webView:(WKWebView *)webView didReceiveServerRedirectForProvisionalNavigation:(null_unspecified WKNavigation *)navigation
+{
+    NSLog(@"%@",NSStringFromSelector(_cmd));
+}
+
+- (void)webView:(WKWebView *)webView didFailProvisionalNavigation:(null_unspecified WKNavigation *)navigation withError:(NSError *)error
+{
+    NSLog(@"%@",NSStringFromSelector(_cmd));
+}
+
+- (void)webView:(WKWebView *)webView didCommitNavigation:(null_unspecified WKNavigation *)navigation
+{
+    NSLog(@"%@",NSStringFromSelector(_cmd));
+}
+
+- (void)webView:(WKWebView *)webView didFailNavigation:(null_unspecified WKNavigation *)navigation withError:(NSError *)error
+{
+    NSLog(@"%@",NSStringFromSelector(_cmd));
 }
 
 - (void)webView:(WKWebView *)webView didFinishNavigation:(null_unspecified WKNavigation *)navigation
 {
+    NSLog(@"%@",NSStringFromSelector(_cmd));
     // 执行 document.title 获取 title 后赋值
 //    __weak typeof(self) weakSelf = self;
 //    [webView evaluateJavaScript:@"document.title" completionHandler:^(id _Nullable item, NSError * _Nullable error) {
@@ -200,11 +253,33 @@
     
     // 直接读取 webview 的 title 属性
     self.title = webView.title;
+    
+    // 设置 cookie
+    [self setCookieForWKWebView];
+    
+    self.progressView.hidden = YES;
+}
+
+- (void)webView:(WKWebView *)webView didReceiveAuthenticationChallenge:(NSURLAuthenticationChallenge *)challenge completionHandler:(void (^)(NSURLSessionAuthChallengeDisposition disposition, NSURLCredential * _Nullable credential))completionHandler
+{
+    NSLog(@"%@",NSStringFromSelector(_cmd));
+    
+    if ([challenge.protectionSpace.authenticationMethod isEqualToString:NSURLAuthenticationMethodServerTrust]) {
+        
+        NSURLCredential *card = [[NSURLCredential alloc]initWithTrust:challenge.protectionSpace.serverTrust];
+        
+        completionHandler(NSURLSessionAuthChallengeUseCredential,card);
+        
+    }
+    
+    completionHandler(NSURLSessionAuthChallengePerformDefaultHandling,nil);
 }
 
 -(void)webViewWebContentProcessDidTerminate:(WKWebView *)webView
 {
     NSLog(@"%@",NSStringFromSelector(_cmd));
+    
+    self.progressView.hidden = YES;
 }
 
 #pragma mark - WKUIDelegate
@@ -241,13 +316,103 @@
     NSLog(@"%@",NSStringFromSelector(_cmd));
 }
 
+#pragma mark -
+- (void)setCookieForWKWebView
+{
+    //取出cookie
+    NSHTTPCookieStorage *cookieStorage = [NSHTTPCookieStorage sharedHTTPCookieStorage];
+    //js函数
+    NSString *JSFuncString =
+    @"function setCookie(name,value,expires)\
+    {\
+    var oDate=new Date();\
+    oDate.setDate(oDate.getDate()+expires);\
+    document.cookie=name+'='+value+';expires='+oDate+';path=/'\
+    }\
+    function getCookie(name)\
+    {\
+    var arr = document.cookie.match(new RegExp('(^| )'+name+'=([^;]*)(;|$)'));\
+    if(arr != null) return unescape(arr[2]); return null;\
+    }\
+    function delCookie(name)\
+    {\
+    var exp = new Date();\
+    exp.setTime(exp.getTime() - 1);\
+    var cval=getCookie(name);\
+    if(cval!=null) document.cookie= name + '='+cval+';expires='+exp.toGMTString();\
+    }";
+    
+    //拼凑js字符串
+    NSMutableString *JSCookieString = JSFuncString.mutableCopy;
+    for (NSHTTPCookie *cookie in cookieStorage.cookies) {
+        NSString *excuteJSString = [NSString stringWithFormat:@"setCookie('%@', '%@', 1);", cookie.name, cookie.value];
+        [JSCookieString appendString:excuteJSString];
+    }
+    //执行js
+    [self.webView evaluateJavaScript:JSCookieString completionHandler:nil];
+}
+
+- (void)clearCaches
+{
+    if ([[UIDevice currentDevice].systemVersion floatValue] >= 9.0) {
+        
+        NSSet *websiteDataTypes
+        
+        = [NSSet setWithArray:@[
+                                
+                                WKWebsiteDataTypeDiskCache,
+                                
+                                //WKWebsiteDataTypeOfflineWebApplicationCache,
+                                
+                                WKWebsiteDataTypeMemoryCache,
+                                
+                                //WKWebsiteDataTypeLocalStorage,
+                                
+                                //WKWebsiteDataTypeCookies,
+                                
+                                //WKWebsiteDataTypeSessionStorage,
+                                
+                                //WKWebsiteDataTypeIndexedDBDatabases,
+                                
+                                //WKWebsiteDataTypeWebSQLDatabases
+                                
+                                ]];
+        
+        //// All kinds of data
+        
+        //NSSet *websiteDataTypes = [WKWebsiteDataStore allWebsiteDataTypes];
+        
+        //// Date from
+        
+        NSDate *dateFrom = [NSDate dateWithTimeIntervalSince1970:0];
+        
+        //// Execute
+        
+        [[WKWebsiteDataStore defaultDataStore] removeDataOfTypes:websiteDataTypes modifiedSince:dateFrom completionHandler:^{
+            
+            // Done
+            
+        }];
+        
+    } else {
+        
+        NSString *libraryPath = [NSSearchPathForDirectoriesInDomains(NSLibraryDirectory, NSUserDomainMask, YES) objectAtIndex:0];
+        
+        NSString *cookiesFolderPath = [libraryPath stringByAppendingString:@"/Cookies"];
+        
+        NSError *errors;
+        
+        [[NSFileManager defaultManager] removeItemAtPath:cookiesFolderPath error:&errors];
+        
+    }
+}
 #pragma mark - KVO
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSKeyValueChangeKey,id> *)change context:(void *)context
 {
     if ([keyPath isEqualToString:@"title"]) {
-        
-    } else if ([keyPath isEqualToString:@""]) {
-        
+        self.title = ((WKWebView *)object).title;
+    } else if ([keyPath isEqualToString:@"estimatedProgress"]) {
+        self.progressView.progress = ((WKWebView *)object).estimatedProgress;
     }
 }
 
